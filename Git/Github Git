@@ -1,0 +1,65 @@
+Most Important Commands for Git
+
+1) git init  - Creates 3 area (working area, staging area, local repo)
+
+2) git status - It will tell the status of the file.
+
+3) git add . - It will add all the files from working area to staging area
+
+4) git add filename1 filename2 - It will add only the mentioned files from working area to staging area
+
+5) git add *.sh - It will add all the files with extension .sh from working area to staging area
+
+6) git commit - It moves files from staging area to local repo.
+
+7) git commit -m "My commit" - Adding comments while commit
+
+8) git config --global user.name ""
+
+9) git config --global user.email ""
+
+10) git commit -m "My Commit" filename - To commit specific file
+
+11) git remote add aliasname "https://github.com/..." - To add remote repository so that we can push our code there
+
+12)  git remote -v - It will show all the mapped repos.
+
+13) git push aliasname master - It will push files to remote repo from the branch mentioned
+
+14) git log -2 - To check only last 2 commit ids.
+
+15) git show commit_id - To display filenames committed in this commit id
+
+16) git reset - To get back files from staging area to working area
+
+17) git revert - To revert changes of last commit in your local repo only
+
+18) git pull aliasname master - To pull changes in working area
+
+19) git clean - To clean the files which are newly created in working area
+
+20) git branch branchname - To create branch
+
+21) git checkout branchname - To switch to that branch
+
+22) git branch -a - To list down all branches
+
+23) git merge branchname - To merge changes of the mentioned branch into the branch where you are currently
+
+24) git diff branchname - To check changes
+
+25) git push aliasname --all - To push files of all the branches to remote repo
+
+26) git tag tagname - To create tag
+
+27) git push aliasname tag tagname - To push tag to remote repo
+
+28) git stash apply stash @{1} - To apply specific version changes
+
+29) git cherry pick commit id - To merge particular commit id
+
+30) git fetch aliasname branchname - To fetch changes in local repo
+
+31) git clone "https://github.com.." - To fetch files of very new code.
+
+32) git rebase branchname
