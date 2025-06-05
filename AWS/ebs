@@ -1,0 +1,7 @@
+1) Can we attach one EBS to multiple EC2?
+2) Can we attach EBS with EC2 which is another region?
+3) Types of EBS?
+4) What is root volume?
+5) How can we attach EBS volume to EC2 instance present in different region - Snapshot concept
+6) How to mount volume for EC2 server?
+7) Is data lost stored in EBS volume, if EC2 is stopped or rebooted?
