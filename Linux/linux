@@ -1,0 +1,118 @@
+
+Linux Interview Questions
+
+
+1) How many flavours of Linux you have worked on?
+2) What is a difference between hard link and soft link.
+3) Can you explain Linux directory structure.
+4) What is the home directory of root user.
+5) Command to check whether specific port is enabled or not.
+6) What are daemon services in Linux.
+7) How can you provide root privileges to any user.
+8) How would you check the current running processes on a Linux system?
+9) Explain the concept of file ownership in Linux and how it relates to permissions.
+10) Describe the process of setting up passwordless SSH between two Linux systems.
+11) How would you manage system updates and patches on Linux servers.
+12) How would you regain access of Linux server if key is lost.
+
+
+1 How many flavours of Linux you have worked on?
+Ans Ubuntu, Debian, RHEL, Fedora, Kali Linux, CentOS etc..
+
+2 What is a difference between hard link and soft link.
+Ans Hardlink - ln , same properties as linked files, inode number is same , even if original file is deleted we can access link
+Softlink - ln-s, not same properties as linked files, inode number is different , utilize less space, if original file is deleted we cannot access link
+
+3 Can you explain Linux directory structure.
+Ans Starting from the root
+ /bin /dev /etc /usr /home /lib /sbin /tmp /var/
+ 1: bin- contains all executables for many shell commands like cp,cd and many more
+ 2: dev- Contains special files, including those related to devices like this are virtual devices and not physical devices on disk.
+ 3: etc- contains configuration files of system. mostly used by admin for password files and networking files. if you want to change system config come here.
+ 4: usr- container all executalbe file, libraries, source of most of the system programs.
+     again usr is divided into sub commands like: 
+       /usr/bin: contains basic user commands
+       /usr/sbin: containes additional commands for admin
+       /usr/share: contains documents to all libraries
+ 5: home- contais personal directories of specific users.
+   example if you create to user ram and shyam: there location will be: /home/ram &   /home/shyam
+ 6: lib- contains codes and executable binaries.
+ 7: sbin- contains system binaries
+ 8: tmp- directory holds temoporary files. temprary means when system restarts all files are gone/deleted.
+ 9: var- contains program runtime info like logging, user track, caches, here files are not deleted automatically because its crucial info like logs history of sytem.
+10: mnt- used by sys admin to mount and add new filsystem
+11: proc- contains info about current running process and kernel.
+12: media- points to removable disks, like usb, sd card, etc
+13: srv- contains services provided by system. for ex: http server
+ 
+4 What is the home directory of root user.
+Ans /root
+
+5 Command to check whether specific port is enabled or not.
+Ans netstat -tuln | grep :port_number
+    lsof -i :port_number
+  nmap -p port_number localhost
+
+6 What are daemon services in Linux.
+Ans Daemon simply means background processes that runs continuously in Linux, like cron jobs.
+
+7 How can you provide root privileges to any user.
+Ans add user in /etc/sudoers file using Visudo
+
+8 How would you check the current running processes on a Linux system?
+Ans ps aux, ps -ef , htop
+
+9 Explain the concept of file ownership in Linux and how it relates to permissions.
+Ans So when the file is create the user who created file has full control on it.
+ if a file is assigned to a group all users in that group share the same permissions.
+ you can do ls -la to see permission of file. and ls -l filename to see ownership
+ls -l filename command will give you owner name group name etc info.
+so when a Alice user create a file named demo.txt he had read write permission and group and others had read only permission.
+
+permission for normal file: for user read and write
+                            for group only read
+                            for others only read
+
+permission for executable file: for user read and write
+                                for group only read
+                                for others only read
+                                we need to make file executable manually like
+                                chmod u+x filename 
+
+if you want to change owner of file:
+    sudo chown bob demo.sh  just an example demo.sh ownership is change to bob.
+
+read r - 4
+write w - 2
+execute x - 1
+
+chmod 777 devops.txt - read , write and execute permissions to user, group and others
+
+10) Describe the process of setting up passwordless SSH between two Linux systems.
+Ans)  ssh-keygen -t rsa -b 4096 in one server
+copy public key to another server
+sudo nano /etc/ssh/sshd_config in same server where you copied key
+Set PasswordAuthentication no
+restart sshd service
+
+11) How would you manage system updates and patches on Linux servers.
+Ans) for ubuntu based os  
+   update package -- sudo apt update
+   upgrade all packages -- sudo apt upgrade -y
+   remove old packages -- sudo apt autoremove -y
+   check updated logs -- car /var/log/apt/history.log
+   reboot if required -- sudo reboot
+
+12) How would you regain access of Linux server if key is lost.
+Ans) Stop the instance (don’t terminate it).
+Detach the root volume from the instance.
+Attach the volume to another instance that you can access.
+Once attached, mount the volume on the new instance and navigate to the ~/.ssh/authorized_keys file of the root (or relevant) user on the attached volume.
+Add your new SSH key to the authorized_keys file.
+Detach the volume from the second instance and reattach it to the original instance as the root volume.Start the instance again and log in using the new SSH key
+
+
+#devops 
+#devopsengineer
+
+From <https://www.youtube.com/watch?v=ObXV55a_vpA&list=PLY2hteiRrKUeMzioQbhbdmudQGioRmFRx&index=35> 
