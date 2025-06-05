@@ -1,0 +1,17 @@
+1) Create a shell script to check the available free memory on the system and alert the user if it falls below the threshold
+
+2) Create a shell script to automate the creation of a new user with specific permissions and home directory.
+
+3) Write a shell script to find all large files greater than 1GB in a directory and move them to another directory.
+
+4) Write a shell script that automatically updates all installed packages on a system and reboots the system if needed.
+
+5) Write a script to count the number of lines in all .log files in a specified directory.
+
+6) Write a script that checks for the presence of specific software on the system on the system (e.g. Docker, Git) and installs if it is missing.
+
+
+
+
+
+
