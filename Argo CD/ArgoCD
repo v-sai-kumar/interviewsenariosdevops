@@ -1,0 +1,58 @@
+ArgoCD Interview Questions
+1. What is ArgoCD and how does it work?
+
+
+ 2. Explain the architecture of ArgoCD.
+Answer:ArgoCD has the following key components:
+API Server: The main component that handles user requests and serves the ArgoCD web UI. It interacts with the Kubernetes cluster and the Git repository.
+Repository Server: Handles all interactions with Git repositories. It fetches manifests and serves them to the application controller.
+Application Controller: Monitors the state of applications and ensures that the actual state matches the desired state defined in Git. It performs the sync operation.
+Redis Cache: Stores and caches Git repository data and other metadata to improve performance.
+Web UI/CLI: Provides a user interface and command-line interface to interact with ArgoCD, trigger synchronization, and manage applications.
+
+
+3. What is GitOps, and how does ArgoCD implement it?
+Answer:How ArgoCD implements GitOps:
+ArgoCD continuously monitors Git repositories for changes to Kubernetes manifests, Helm charts, or Kustomize configurations.
+When a change is detected, ArgoCD automatically syncs the live state of the cluster with the desired state defined in the repository.
+This makes the deployment process auditable, versioned, and automated, ensuring that any changes to the Kubernetes infrastructure are tracked in Git.
+
+
+4. How does ArgoCD handle rollbacks and versioning?
+ Answer:ArgoCD provides several ways to handle rollbacks:
+Git-based Rollback: Since ArgoCD is GitOps-based, the repository always contains the desired state of the application. To roll back, you can simply revert the commit in the Git repository and ArgoCD will automatically sync the cluster to the previous version.
+ArgoCD UI/CLI Rollback: You can use the ArgoCD UI or CLI to roll back to a previous application version. This allows you to track the history of deployments and revert to any previous state.
+Automated Rollbacks: In case of a failed sync or if the application enters an unhealthy state, ArgoCD can be configured to automatically trigger rollbacks to the previous stable state.
+
+5. How does ArgoCD integrate with Helm charts and Kustomize?
+ Answer:ArgoCD has native support for both Helm and Kustomize, and it can automatically deploy applications that use these tools.
+Helm Integration: ArgoCD can sync Helm chart repositories directly from a Git repository, or it can deploy charts from a Helm repository. It allows you to define and manage Helm values files and apply them as part of the deployment.
+Kustomize Integration: ArgoCD supports Kustomize out of the box, allowing users to manage Kubernetes resources with overlays and patches in a Git repository. ArgoCD can apply Kustomize transformations to Kubernetes manifests during the sync process.
+
+
+
+6. What is the concept of "ApplicationSets" in ArgoCD?
+ Answer:ApplicationSets is an advanced feature in ArgoCD that allows for dynamic creation of multiple applications based on a defined template. It is especially useful when you want to deploy the same application across multiple environments, clusters, or namespaces without manually defining each application.
+
+
+
+7. What are the security best practices when using ArgoCD?
+Answer: Here are some security best practices:
+RBAC (Role-Based Access Control)
+SAML/OIDC Authentication
+Secure Git Access
+Use of Application Secrets
+Audit Logs: Enable audit logging to track changes and access to the ArgoCD system.
+
+
+8. What are the key differences between ArgoCD and Flux?
+Answer: ArgoCD and Flux are both GitOps tools for Kubernetes, but there are key differences:
+User Interface: ArgoCD provides a rich web UI for managing applications, while Flux primarily relies on the command line or integrates with other tools for UI.
+Application Management: ArgoCD supports the concept of applications, which can be created, monitored, and synced individually, while Flux tends to be more focused on the GitOps principles and is more minimalistic.
+Helm Integration: ArgoCD has more advanced Helm chart integration out of the box, while Flux requires more setup for similar functionality (although Flux now supports Helm through Helm Controller).
+
+9. How do you handle multi-cluster deployments in ArgoCD?
+ Answer:ArgoCD supports multi-cluster deployments by allowing you to connect and manage multiple Kubernetes clusters. Each cluster can be added to ArgoCD, and you can deploy applications to specific clusters based on your configuration.
+   Steps for multi-cluster setup:
+ Register multiple clusters with ArgoCD using the ArgoCD CLI or API.
+Create an application in ArgoCD and specify the target cluster and namespace where the application should be deployed.
