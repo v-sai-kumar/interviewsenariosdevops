@@ -1,2 +1,1 @@
-# interviewsenariosdevops
-devops senario based QA for AWS DevOps
+AWS Devops interview senario based refer all the folders for specific tools
