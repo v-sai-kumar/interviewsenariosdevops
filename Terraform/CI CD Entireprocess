@@ -1,0 +1,466 @@
+Setup 1 provisioning the Infrastructure
+
+provider "aws" {
+  region = "us-west-2"  # Adjust the region as needed
+
+  Fetching AWS Access Key and Secret Key from AWS Secrets Manager
+  access_key = data.aws_secretsmanager_secret_version.aws_secret_version.secret_string["aws_access_key_id"]
+  secret_key = data.aws_secretsmanager_secret_version.aws_secret_version.secret_string["aws_secret_access_key"]
+}
+
+Fetch AWS Secrets from Secrets Manager
+data "aws_secretsmanager_secret" "aws_secret" {
+  name = "my-aws-credentials-secret"  # Replace with your secret name
+}
+
+data "aws_secretsmanager_secret_version" "aws_secret_version" {
+  secret_id = data.aws_secretsmanager_secret.aws_secret.id
+}
+
+VPC Configuration
+resource "aws_vpc" "eks_vpc" {
+  cidr_block = "10.0.0.0/16"
+
+  enable_dns_support = true
+  enable_dns_hostnames = true
+
+  tags = {
+    Name = "eks-vpc"
+  }
+}
+
+resource "aws_subnet" "eks_subnet" {
+  vpc_id                  = aws_vpc.eks_vpc.id
+  cidr_block              = "10.0.1.0/24"
+  availability_zone       = "us-west-2a"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "eks-subnet"
+  }
+}
+
+resource "aws_security_group" "eks_sg" {
+  vpc_id = aws_vpc.eks_vpc.id
+
+  egress {
+    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+  }
+
+  ingress {
+    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = 0
+    to_port     = 65535
+    protocol    = "tcp"
+  }
+
+  tags = {
+    Name = "eks-security-group"
+  }
+}
+
+EKS Cluster
+resource "aws_eks_cluster" "eks_cluster" {
+  name     = "my-eks-cluster"
+  role_arn = aws_iam_role.eks_cluster_role.arn
+
+  vpc_config {
+    subnet_ids = [aws_subnet.eks_subnet.id]
+    security_group_ids = [aws_security_group.eks_sg.id]
+  }
+}
+
+IAM Role for EKS Cluster
+resource "aws_iam_role" "eks_cluster_role" {
+  name = "eks-cluster-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Principal = {
+          Service = "eks.amazonaws.com"
+        }
+        Effect = "Allow"
+        Sid    = ""
+      },
+    ]
+  })
+
+  managed_policy_arns = [
+    "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy",
+    "arn:aws:iam::aws:policy/AmazonEKSServicePolicy",
+  ]
+}
+
+resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+  role       = aws_iam_role.eks_cluster_role.name
+}
+
+IAM Role for EKS Node
+resource "aws_iam_role" "eks_node_role" {
+  name = "eks-node-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+        Effect = "Allow"
+        Sid    = ""
+      },
+    ]
+  })
+
+  managed_policy_arns = [
+    "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy",
+    "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",
+    "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy",
+    "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess",
+  ]
+}
+
+EKS Node Group
+resource "aws_eks_node_group" "eks_nodes" {
+  cluster_name    = aws_eks_cluster.eks_cluster.name
+  node_group_name = "my-node-group"
+  node_role_arn   = aws_iam_role.eks_node_role.arn
+  subnet_ids      = [aws_subnet.eks_subnet.id]
+  desired_size    = 2
+  max_size        = 3
+  min_size        = 1
+
+  scaling_config {
+    desired_size = 2
+    max_size     = 3
+    min_size     = 1
+  }
+
+  instance_types = ["t3.medium"]
+}
+
+Output the cluster information
+output "cluster_endpoint" {
+  value = aws_eks_cluster.eks_cluster.endpoint
+}
+
+output "cluster_name" {
+  value = aws_eks_cluster.eks_cluster.name
+}
+
+output "cluster_certificate_authority_data" {
+  value = aws_eks_cluster.eks_cluster.certificate_authority[0].data
+}
+
+output "node_group_name" {
+  value = aws_eks_node_group.eks_nodes.node_group_name
+}
+
+
+Output:
+
+To use output in any resource block
+resource "some_resource" "example" {
+  endpoint = output.cluster_endpoint
+}
+
+To display all the output defined in terraform configuration
+terraform output cluster_endpoint
+
+
+Step 2 : Fetch code from SCM
+
+https://github.com/mycompany-test/pro...
+https://github.com - SCM
+mycompany-test - org
+project.git - repo
+
+Create the team , provide them necessary access
+
+In most organizations, branching strategies in version control systems (like Git) are designed to facilitate collaboration, reduce conflicts, and maintain a stable product. The most common branching strategies used in organizations are:
+
+Git Flow
+   Git Flow is a popular branching model that defines strict roles for different branches, making it suitable for teams that have scheduled releases or large development teams.
+
+Master: The main branch, always contains the production-ready code.
+Develop: A development branch where new features are integrated before being released.
+Feature Branches: These are created from develop to work on specific features. Once complete, they are merged back into develop.
+Release Branches: Created from develop when the code is ready for a release. These branches allow for final testing and bug fixing before merging into master.
+Hotfix Branches: Created from master to quickly address any critical issues in production. After fixes are applied, they are merged into both master and develop.
+
+GitLab Flow
+ 
+GitLab Flow is a flexible and simplified branching strategy that combines elements of both Git Flow and GitHub Flow, offering more flexibility depending on the release strategy.
+
+Main (Master) Branch: Holds the production-ready code.
+Environment Branches: Depending on the environment (like staging, production, etc.), different branches can be created.
+Feature Branches: Similar to GitHub Flow, feature branches are created for each new task or feature, and pull requests are used to merge them.
+Issue-driven Branching: Branches are often tied directly to specific issues or merge requests.
+
+
+Pipeline script: Parametrized pipeline
+
+How you handle deployment in different environments.
+
+Integrating with pipeline using GitHub webhook
+Settings - Webhook url - Jenkinsurl/github-webhhook/
+Content-Type : application/json
+
+
+#devopsengineering 
+#devopsmadeeasy 
+#devopslife
+
+
+Step 3: Setting Up CI/CD pipeline
+
+
+A parameterized pipeline script in Jenkins allows users to pass parameters to the pipeline at runtime, making the pipeline more dynamic. Here's an example of a simple parameterized pipeline script written in Groovy (Jenkins Pipeline DSL):
+
+
+pipeline {
+    agent none
+    
+    parameters {
+        string(name: 'BRANCH', defaultValue: 'main', description: 'Branch to build')
+        booleanParam(name: 'CLEAN', defaultValue: true, description: 'Clean before building')
+        choice(name: 'ENVIRONMENT', choices: ['development', 'staging', 'production'], description: 'Choose deployment environment')
+    }
+
+  timeout
+{
+  
+}
+    
+    stages {
+        stage('Checkout') {
+          agent
+           {
+             label: 
+            }
+            steps {
+                echo "Checking out branch: ${params.BRANCH}"
+                git branch: "${params.BRANCH}", url: 'https://github.com/example/repo.git'
+            }
+        }
+        
+        stage('Clean') {
+            when {
+                expression { return params.CLEAN }
+            }
+            steps {
+                echo 'Cleaning workspace...'
+                deleteDir()
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                echo "Building project for environment: ${params.ENVIRONMENT}"
+                // Add build commands here
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                echo "Deploying to ${params.ENVIRONMENT} environment..."
+                // Add deployment commands here
+            }
+        }
+    }
+    
+    post {
+        always {
+            echo 'Cleaning up after build...'
+        }
+    }
+}
+
+Explanation:
+Parameters:
+BRANCH: A string parameter that specifies the branch to build (defaults to main).
+CLEAN: A boolean parameter to decide if the workspace should be cleaned before building (defaults to true).
+ENVIRONMENT: A choice parameter to select the environment for deployment (development, staging, or production).
+
+Stages:
+Checkout: Fetches the code from the specified branch.
+Clean: Deletes the workspace if the CLEAN parameter is set to true.
+Build: Performs the build process.
+Deploy: Deploys to the selected environment.
+
+This pipeline can be triggered with different values for the parameters, allowing flexibility in the process.
+
+
+Multi Branch Pipeline
+
+Manage Plugins - Install Multibranch Plugin
+
+Dashboard - New item - Choose Multibranch Pipeline , under Branch source add source and select your Git repository type, provide the repository url and credential - Scan Multi Branch pipeline
+
+How to maintain version in Jenkins:
+
+Git tags for explicit versioning.
+Commit hash for unique version tracking.
+Jenkins build numbers for incremental versions.${BUILD_NUMBER}
+Version file (version.txt) for more controlled version management.
+
+How to schedule Backup in Jenkins
+Install Plugin - Create folder in /var/lib/jenkins/jenkinsbackup
+Change ownership - Schedule full or differential backup
+
+
+#devopsmadeeasy 
+#devopsengineer 
+#devopsprojec
+
+Step 4 : Deploying application
+
+Use Kubernetes manifest files or Helm charts to deploy the application.
+
+Prerequisites:
+
+kubectl Setup: Configure kubectl to interact with the cluster.
+
+Create a Kubernetes deployment YAML file (e.g., deployment.yaml) in your repository that defines the application you want to deploy. It should look something like this:
+
+Manifest file:
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: your-app-name
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: your-app-name
+  template:
+    metadata:
+      labels:
+        app: your-app-name
+    spec:
+      containers:
+name: your-app-container
+        image: your_ecr_repo/image_name:tag
+        ports:
+containerPort: 80
+
+
+Helm charts:
+
+Deploying an application on EKS using Helm charts in a CI/CD pipeline is a great way to manage Kubernetes applications. Helm allows you to define, install, and upgrade even the most complex Kubernetes applications. Using Helm in your CI/CD pipeline simplifies deployment and allows you to reuse and share Kubernetes applications as charts.
+
+Here’s how to modify the CI/CD pipeline to deploy using Helm charts:
+
+Before using Helm in the CI/CD pipeline, you need to ensure that Helm is installed on your Kubernetes cluster. If Helm is not yet installed, here’s how to do it:
+
+Add Helm's official chart repository
+helm repo add stable https://charts.helm.sh/stable
+
+Update your local Helm chart repository
+helm repo update
+
+helm create my-app
+
+my-app/
+├── Chart.yaml
+├── values.yaml
+├── charts/
+├── templates/
+└── .helmignore
+
+
+Chart.yaml
+
+apiVersion: v2
+name: my-app
+description: A Helm chart for Kubernetes to deploy my app
+version: 1.0.0
+
+
+values.yaml
+
+replicaCount: 2
+
+image:
+  repository: your_ecr_repo/image_name
+  pullPolicy: Always
+  tag: latest
+
+service:
+  type: ClusterIP
+  port: 80
+
+resources: {}
+
+
+templates.yaml/deployment.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+name: my-app
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        ports:
+containerPort: 80
+
+
+In CI/CD pipeline step:
+
+helm upgrade --install my-app ./my-app
+
+
+Once the pipeline finishes, you can verify that the application is deployed using the following command:
+
+kubectl get pods
+
+
+AWS DevOps : CodeDeploy is used
+Azure DevOps: Azure App Services(Azure Pipelines)
+ArgoCD is used
+
+
+#devopsmadeeasy 
+#devops 
+#devopsengineer 
+#deployment
+
+
+Step 5: Setting Up Monitoring and Logging Promethus and Grafana Azure Monitor AWS CloudWatch ELK -Kibana Datadog Nagios 
+a) Install Prometheus Helm (for Kubernetes): If you're using Kubernetes, you can install Prometheus using Helm: helm install prometheus prometheus-community/kube-prometheus-stack Direct Installation (for other clusters): kubectl apply -f https://raw.githubusercontent.com/pro... Configure Prometheus: Customize the prometheus.yml to scrape metrics from your cluster nodes or services. 
+
+b) Set Up Grafana for Visualization Install Grafana (with Helm for Kubernetes): helm install grafana grafana/Grafana Connect Grafana to Prometheus: In Grafana, go to "Data Sources" and choose Prometheus as the source. Enter the Prometheus server URL and save. Create Dashboards: Use pre-built Kubernetes dashboards or create your own to visualize cluster metrics (CPU, memory usage, pod status, etc.). 
+
+3. Set Up Logging with EFK (Elasticsearch, Fluentd, Kibana) 
+      a) Install Elasticsearch and Kibana Install Elasticsearch (via Helm for Kubernetes): helm install elasticsearch elastic/elasticsearch Install Kibana: helm install kibana elastic/kibana 
+      b) Configure Fluentd for Log Collection Install Fluentd: Fluentd collects logs from nodes and sends them to Elasticsearch for indexing. In Kubernetes, you can deploy Fluentd as a DaemonSet to collect logs from all nodes. Fluentd Configuration: Set up Fluentd to forward logs to Elasticsearch. A sample configuration might look like: yaml Copy match @type elasticsearch host elasticsearch.default.svc.cluster.local port 9200 logstash_format true flush_interval 5s /match 
+      c) Access Kibana for Log Visualization Once logs are being collected and indexed by Elasticsearch, you can access Kibana to search, filter, and visualize your logs. 
+      D) Set Up Alerts and Notifications Prometheus Alerts: You can configure alerting rules in Prometheus to notify you when something goes wrong. Example Prometheus alert rule: yaml Copy groups: 
+• name: example-alerts 
+rules: 
+• alert: HighCPUUsage 
+expr: sum(rate(container_cpu_usage_seconds_total{image!="", container!="POD"}[1m])) by (container) = 0.8 for: 1m labels: severity: critical annotations: summary: "Container CPU usage is too high" Alertmanager: Prometheus integrates with Alertmanager, which can send notifications to various channels like Slack, email, or PagerDuty. Grafana Alerts: Set up alerts based on the visualized metrics to notify via email, Slack, or other channels. 5. Set Up Cloud-native Monitoring (Optional) If your cluster is hosted on AWS, GCP, or Azure, you can leverage their cloud-native tools for monitoring and logging. AWS CloudWatch: Use CloudWatch to monitor EC2 instances, EKS, and other AWS resources. CloudWatch can also collect logs and metrics from EC2, Kubernetes, and Lambda. Google Stackdriver: Use Stackdriver for monitoring and logging in Google Cloud. Azure Monitor: Azure's native monitoring platform can be used for monitoring AKS and other Azure resources. 6. Configure Log Rotation and Retention Ensure that logs are rotated regularly and older logs are archived or deleted based on your retention policy. For Kubernetes clusters, tools like Loki (a lightweight log aggregation system) can be used with Grafana. Example Architecture: For a Kubernetes cluster, the monitoring and logging setup would look like: Prometheus for metrics collection. Grafana for visualization of metrics. Fluentd for log collection. Elasticsearch + Kibana (EFK) for log storage and visualization. Alertmanager for sending notifications. #devopsmadeeasy #monitoring #devops #sre
+Transcript
+
+From <https://www.youtube.com/watch?v=i20_bAR3uVo&list=PLY2hteiRrKUeMzioQbhbdmudQGioRmFRx&index=24> 
+
