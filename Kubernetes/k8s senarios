@@ -16,12 +16,14 @@ The frontend pods can now communicate with the backend by accessing the service 
 2. DNS Resolution:
    Kubernetes provides an internal DNS server that automatically resolves the DNS name of services and pods to their respective IP addresses. For example:
 If your frontend pods need to talk to a backend service, they will use backend-service.default.svc.cluster.local to resolve the IP address of the backend service, which Kubernetes then routes to one of the backend pods.
+
 3. Pod-to-Pod Communication with Headless Services:
 When you need direct access to individual pods, like in a StatefulSet, Kubernetes uses headless services (services with clusterIP: None). This enables DNS resolution directly to each pod's individual IP address (e.g., db-0.my-db-headless.default.svc.cluster.local).
 For example, if a pod needs to communicate with a specific database replica, it can use the DNS name corresponding to that pod.
 c. Communication Across Namespaces
 Kubernetes allows pods to communicate across different namespaces. You can access services in other namespaces by using the full DNS name: service-name.namespace.svc.cluster.local.
 For example, if a pod in the frontend namespace wants to talk to a service in the backend namespace, it would access it via: backend-service.backend.svc.cluster.local.
+
 2. How Traffic Forwards to Another Pod
 Traffic forwarding in Kubernetes typically happens through services or network policies. Let’s understand how traffic is routed:
 a. Using Kubernetes Services to Forward Traffic
@@ -29,6 +31,7 @@ a. Using Kubernetes Services to Forward Traffic
    Kubernetes services are designed to abstract away the complexity of dealing with individual pod IPs. When a client (pod or external client) sends a request to a service, the service automatically forwards the traffic to one of the backend pods based on the service's selector.
 ClusterIP: A service with type: ClusterIP forwards traffic to backend pods, and Kubernetes automatically load-balances the requests between all pods matching the service’s label selector.
 NodePort / LoadBalancer: If the service type is NodePort or LoadBalancer, the service exposes a port on each node (for NodePort) or external IP (for LoadBalancer) and forwards traffic to the appropriate backend pods.
+
 2. Traffic Flow:
 When a pod sends a request to a service, Kubernetes will resolve the service’s DNS name to its cluster IP (e.g., backend-service.default.svc.cluster.local), which is used by Kubernetes to forward the request to one of the matching pods in the backend service.
 The service will then forward the traffic to one of its endpoints (pods). If there are multiple pods in the backend, Kubernetes performs load balancing to distribute the traffic.
@@ -37,7 +40,6 @@ Frontend Pod sends a request to backend-service.default.svc.cluster.local:80.
  Kubernetes DNS resolves this service name to the ClusterIP of the backend-service.
  Kubernetes Service forwards the traffic to one of the backend pods.
 b. Ingress and Egress Traffic
-
 
 
 3. How Kubernetes Forwards Traffic Between Dependent Pods
