@@ -1,0 +1,140 @@
+Part - 1
+
+      Ansible Interview Preparation
+
+
+Ansible - Configuration Management Tool
+
+Ansible -Push Based
+Chef,Puppet - Pull Based
+
+Open source Configuration management
+
+Components in Ansible
+
+1) Host inventory - static or dynamic  /etc/ansible/hosts
+
+[prod]
+
+10.00.89.1
+
+[non-prod]
+
+dynamic 
+
+
+Playbook
+
+Modules - Custom , core 
+
+
+Plugins 
+
+ssh -Linux
+winrm - windows
+
+
+Ansible cannot be installed in windows server
+
+
+ansible-playbook -f ansibledemo.yml -v
+
+ansible-playbook -f ansibledemo.yml --syntax=check
+
+
+
+Ansible Ad Hoc-Commands
+
+
+ansible all -m shell -a date
+
+yum
+copy
+setup
+
+
+Ansible Roles
+
+
+handlers
+vars
+files
+tasks
+default
+meta
+templates
+
+
+Ansible Vault
+
+ansible-vault encrypt secrets.yml
+
+Part - 2
+
+Ansible Playbook
+
+    -hosts: host.yml
+     become: true
+     tasks:
+       -name: Install git
+        yum: 
+         name:git
+         state:present
+       -name: Copy file
+        copy:
+          src: test.txt
+          dest: /tmp/test.txt
+
+
+Handlers: are special tasks that run at the end of the play if notified by another task.
+
+
+
+-hosts: host.yml
+     become: true
+     tasks:
+       -name: Install git
+        yum: 
+         name:git
+         state:present
+       -name: Copy file
+        copy:
+          src: test.txt
+          dest: /tmp/test.txt
+          notify:
+            -Restart apache
+       handlers:
+            -name:Restart apache
+             name: httpd
+             state: restart
+
+Loop Feature:
+
+      
+             hosts:localhost
+             become:true
+             tasks:
+               -name:Install list of packages
+                yum:name='{{item}}' state=present
+                with_items:
+                  -httpd
+                  -wget
+                  -vim
+                  -zip
+
+Variables:
+
+       vars:
+         package:vim
+        tasks:
+          -name: Install a package
+           yum:
+           name: "{$package}"
+           state:present
+           tags:
+             -install
+
+ansible-playbook file --tags "install"
+
+
+
