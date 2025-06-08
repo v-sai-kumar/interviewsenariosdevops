@@ -1,0 +1,167 @@
+AWS S3 Interview Questions and Answers (with Terraform & Ansible)
+
+1. What is Amazon S3?
+Amazon S3 (Simple Storage Service) is an object storage service that offers industry-leading scalability, data availability, security, and performance. 
+It is used to store and retrieve any amount of data from anywhere on the web.
+
+2. What are the different storage classes in S3?
+S3 Standard – Frequent access
+
+S3 Intelligent-Tiering – Automatic cost optimization
+
+S3 Standard-IA – Infrequent Access
+
+S3 One Zone-IA – Infrequent access in a single AZ
+
+S3 Glacier Instant Retrieval – Archival with fast access
+
+S3 Glacier Flexible Retrieval – Archive with flexible retrieval
+
+S3 Glacier Deep Archive – Lowest cost, long-term storage
+
+3. What is the difference between S3 and EBS?
+Feature	S3	EBS
+Type	Object Storage	Block Storage
+Access Method	HTTP(S)	Attach to EC2
+Use Case	Backup, static content	Databases, filesystems
+Pricing	Per GB stored	Per provisioned GB/month
+
+4. How do you make an S3 bucket public?
+Disable "Block Public Access" in bucket settings.
+
+Add a bucket policy like:
+{
+  "Version":"2012-10-17",
+  "Statement":[{
+    "Sid":"PublicRead",
+    "Effect":"Allow",
+    "Principal": "*",
+    "Action":["s3:GetObject"],
+    "Resource":["arn:aws:s3:::my-bucket-name/*"]
+  }]
+}
+5. What are S3 Bucket Policies?
+Bucket policies are JSON-based access control policies attached directly to a bucket. They define who can access what within that bucket.
+
+Example:
+{
+  "Version":"2012-10-17",
+  "Statement":[{
+    "Effect":"Deny",
+    "Principal": "*",
+    "Action":"s3:DeleteObject",
+    "Resource":"arn:aws:s3:::my-bucket/*",
+    "Condition":{
+      "StringNotEquals":{
+        "aws:username":"admin"
+      }
+    }
+  }]
+}
+6. How do you enable versioning in an S3 bucket?
+Via AWS Console: Enable from bucket properties.
+
+Via CLI:
+aws s3api put-bucket-versioning --bucket my-bucket --versioning-configuration Status=Enabled
+
+7. What is S3 Lifecycle policy?
+It automates transitions of objects to cheaper storage or deletion based on age.
+
+Example actions:
+
+Move to Glacier after 30 days
+
+Delete after 365 days
+
+8. How to host a static website on S3?
+Enable Static Website Hosting in bucket properties.
+
+Upload index.html, error.html.
+
+Make bucket public or use CloudFront + OAI.
+
+
+9. How to use Terraform to create an S3 bucket?
+
+resource "aws_s3_bucket" "example" {
+  bucket = "my-unique-bucket-name"
+  acl    = "private"
+
+  tags = {
+    Name        = "MyBucket"
+    Environment = "Dev"
+  }
+}
+To add versioning:
+
+resource "aws_s3_bucket_versioning" "example" {
+  bucket = aws_s3_bucket.example.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+To add a bucket policy:
+resource "aws_s3_bucket_policy" "example" {
+  bucket = aws_s3_bucket.example.id
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect    = "Allow",
+        Principal = "*",
+        Action    = "s3:GetObject",
+        Resource  = "${aws_s3_bucket.example.arn}/*"
+      }
+    ]
+  })
+}
+
+10. How to use Ansible to upload a file to S3?
+Example using community.aws.s3 module:
+
+- name: Upload file to S3
+  hosts: localhost
+  tasks:
+    - name: Upload file
+      community.aws.s3:
+        bucket: my-bucket
+        object: backup/config.yaml
+        src: /etc/config.yaml
+        mode: put
+        region: ap-south-1
+      vars:
+        aws_access_key: "{{ lookup('env','AWS_ACCESS_KEY_ID') }}"
+        aws_secret_key: "{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
+
+        
+11. What are pre-signed URLs in S3?
+Pre-signed URLs allow you to grant time-limited access to private S3 objects.
+
+Generate via CLI:
+aws s3 presign s3://my-bucket/myfile.zip --expires-in 3600
+
+
+12. What is S3 Object Lock?
+S3 Object Lock prevents objects from being deleted or overwritten for a specified amount of time, using WORM (Write Once Read Many).
+
+13. Is S3 region-specific?
+Yes, S3 buckets are created in specific regions, but the bucket name must be globally unique.
+
+14. How do you secure S3 buckets?
+Enable bucket policies and IAM roles
+
+Use S3 Block Public Access
+
+Enable encryption (SSE-S3 or SSE-KMS)
+
+Enable versioning and MFA delete
+
+Use CloudTrail for logging access
+
+15. Can you mount S3 as a file system?
+Yes, using tools like:
+
+s3fs-fuse – Mount S3 as a Linux file system
+
+AWS DataSync or AWS Transfer Family
