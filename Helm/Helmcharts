@@ -1,0 +1,13 @@
+Basics DevOps Interview Questions on Helm
+
+
+What is Helm and why is it used?  apt - Ubuntu and yum-RHEL
+What are Helm charts?
+What is the structure of a Helm chart?
+How do you install a Helm chart?
+What is the difference between helm install and helm upgrade?
+How do you view the deployed releases in Helm?
+What is the purpose of the values.yaml file?
+How do you override default values in a Helm chart?
+What is a Helm release?
+How do you uninstall a Helm release?
