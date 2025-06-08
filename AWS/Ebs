@@ -5,3 +5,72 @@
 5) How can we attach EBS volume to EC2 instance present in different region - Snapshot concept
 6) How to mount volume for EC2 server?
 7) Is data lost stored in EBS volume, if EC2 is stopped or rebooted?
+
+AWS EBS Interview Questions and Answers (DevOps Basics)
+1. Can we attach one EBS to multiple EC2?
+No, a standard EBS volume can be attached to only one EC2 instance at a time within the same Availability Zone.
+However, Amazon EBS Multi-Attach is supported for io1 and io2 volumes, which allows a volume to be attached to multiple EC2 instances simultaneously, but only with certain instance types 
+and for clustered applications like Oracle RAC.
+
+2. Can we attach EBS with EC2 which is in another region?
+No, EBS volumes are region-specific. You cannot directly attach an EBS volume to an EC2 instance in a different region.
+To move EBS volumes across regions, you can use snapshots.
+
+3. Types of EBS?
+AWS offers the following EBS volume types:
+
+General Purpose SSD (gp2 / gp3) – Balanced price/performance.
+
+Provisioned IOPS SSD (io1 / io2) – High-performance SSD for mission-critical workloads.
+
+Throughput Optimized HDD (st1) – Low-cost HDD for frequently accessed, large data.
+
+Cold HDD (sc1) – Lowest cost HDD for infrequently accessed data.
+
+Magnetic (Standard) – Previous-generation, not recommended for new deployments.
+
+4. What is root volume?
+The root volume is the primary EBS volume that contains the operating system (OS) of an EC2 instance.
+It is attached automatically during EC2 creation and is typically /dev/xvda or /dev/sda1.
+
+5. How can we attach an EBS volume to an EC2 instance present in a different region (Snapshot concept)?
+To move an EBS volume across regions:
+
+Create a snapshot of the existing EBS volume.
+
+Copy the snapshot to the target region using the AWS Console or CLI:
+aws ec2 copy-snapshot --source-region us-east-1 --source-snapshot-id snap-12345678 --destination-region us-west-2
+
+Create a new EBS volume from the copied snapshot in the target region.
+
+Attach the volume to the EC2 instance in the target region.
+
+6. How to mount volume for EC2 server?
+Steps to mount EBS volume on a Linux EC2:
+
+Attach the EBS volume to the EC2 instance via the console or CLI.
+
+Login to EC2 via SSH.
+
+List devices:
+lsblk
+
+Format the volume (if new):
+sudo mkfs -t ext4 /dev/xvdf
+
+Create mount point:
+sudo mkdir /data
+
+Mount the volume:
+sudo mount /dev/xvdf /data
+
+To make it permanent, add to /etc/fstab.
+
+7. Is data lost from EBS volume if EC2 is stopped or rebooted?
+No, data is not lost.
+
+When an EC2 instance is stopped or rebooted, the attached EBS volumes (including root volume) remain intact and data is persisted.
+
+If an instance is terminated, then by default only the root volume may be deleted (based on the "Delete on Termination" flag).
+Other attached volumes remain unless explicitly deleted.
+
