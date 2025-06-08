@@ -19,12 +19,15 @@ S3 Glacier Flexible Retrieval – Archive with flexible retrieval
 
 S3 Glacier Deep Archive – Lowest cost, long-term storage
 
+
+
 3. What is the difference between S3 and EBS?
-Feature	S3	EBS
-Type	Object Storage	Block Storage
-Access Method	HTTP(S)	Attach to EC2
-Use Case	Backup, static content	Databases, filesystems
-Pricing	Per GB stored	Per provisioned GB/month
+
+Feature        	S3	                              EBS
+Type          	Object Storage	                  Block Storage
+Access Method  	HTTP(S)            	              Attach to EC2
+Use Case      	Backup, static content            Databases, filesystems
+Pricing        	Per GB stored                    	Per provisioned GB/month
 
 4. How do you make an S3 bucket public?
 Disable "Block Public Access" in bucket settings.
@@ -136,7 +139,23 @@ Example using community.aws.s3 module:
 
         
 11. What are pre-signed URLs in S3?
-Pre-signed URLs allow you to grant time-limited access to private S3 objects.
+Pre-signed URLs allow you to grant time-limited access to private S3 objects. 
+
+
+| Use Case                         | Description                                                                                               |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| 🔒 **Secure File Sharing**       | Share a private document (e.g., PDF invoice) with a customer without making the bucket public.            |
+| 📥 **Temporary File Downloads**  | Provide a download link that auto-expires, ensuring limited-time access to resources.                     |
+| 📤 **Browser-Based Uploads**     | Allow users to upload images, videos, etc., directly from the browser to S3 without exposing credentials. |
+| 🔁 **API-Based File Access**     | REST APIs can return pre-signed URLs to frontend apps for secure and scalable file handling.              |
+| 📂 **Secure Backups/Exports**    | Provide clients access to downloadable backup files (DB dumps, reports) for a limited time.               |
+| 🎫 **Ticketing Systems / Media** | Allow users to download tickets, media, or certificates for a limited time only.                          |
+
+Pre-signed URLs are as secure as your IAM credentials.
+
+Avoid long expiration times for sensitive content.
+
+Use SSE (Server-Side Encryption) + signed URL for encrypted private access.
 
 Generate via CLI:
 aws s3 presign s3://my-bucket/myfile.zip --expires-in 3600
