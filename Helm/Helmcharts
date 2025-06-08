@@ -1,6 +1,5 @@
 Basics DevOps Interview Questions on Helm
 
-
 What is Helm and why is it used?  apt - Ubuntu and yum-RHEL
 What are Helm charts?
 What is the structure of a Helm chart?
@@ -11,3 +10,71 @@ What is the purpose of the values.yaml file?
 How do you override default values in a Helm chart?
 What is a Helm release?
 How do you uninstall a Helm release?
+
+
+Here are the answers to your Basics DevOps Interview Questions on Helm in the requested order:
+Helm Interview Questions and Answers (DevOps Basics)
+1. What is Helm and why is it used?
+Helm is a package manager for Kubernetes, similar to apt on Ubuntu or yum on RHEL. It helps you define, install, and upgrade even the most complex Kubernetes applications using reusable YAML templates called charts.
+
+2. What are Helm charts?
+A Helm chart is a collection of files that describe a related set of Kubernetes resources. It acts as a blueprint for deploying applications in Kubernetes, defining configuration templates and default values.
+
+3. What is the structure of a Helm chart?
+A typical Helm chart has the following structure:
+
+
+mychart/
+├── Chart.yaml          # Chart metadata (name, version, description)
+├── values.yaml         # Default configuration values
+├── charts/             # Subcharts (dependencies)
+├── templates/          # Kubernetes manifest templates
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   └── _helpers.tpl
+└── README.md           # Optional documentation
+
+
+4. How do you install a Helm chart?
+Command:
+helm install <release-name> <chart-name> --namespace <namespace>
+
+Example:
+helm install myapp bitnami/nginx --namespace dev
+
+5. What is the difference between helm install and helm upgrade?
+helm install: Installs a new Helm release.
+
+helm upgrade: Modifies an existing release with new values or chart versions.
+
+Tip: Use helm upgrade --install to install if not present, or upgrade if it exists.
+
+6. How do you view the deployed releases in Helm?
+All namespaces:
+helm list --all-namespaces
+
+Specific namespace:
+helm list --namespace <namespace>
+
+7. What is the purpose of the values.yaml file?
+The values.yaml file contains default configuration values used by the chart templates. It allows customization of Kubernetes resource specifications without changing the template files.
+
+8. How do you override default values in a Helm chart?
+Two ways to override:
+
+Using --set flag:
+helm install myapp ./mychart --set image.tag=1.19
+
+Using a custom values file:
+helm install myapp ./mychart -f custom-values.yaml
+
+9. What is a Helm release?
+A Helm release is a specific instance of a chart deployed into a Kubernetes cluster. Each release is unique and managed independently.
+
+10. How do you uninstall a Helm release?
+Command:
+helm uninstall <release-name> --namespace <namespace>
+Example:
+helm uninstall myapp --namespace dev
+This will remove all Kubernetes resources created by that release.
+
