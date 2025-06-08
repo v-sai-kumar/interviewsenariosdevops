@@ -17,7 +17,7 @@ Linux Interview Questions
 
 
 1 How many flavours of Linux you have worked on?
-Ans Ubuntu, Debian, RHEL, Fedora, Kali Linux, CentOS etc..
+Ubuntu, Debian, RHEL, Fedora, Kali Linux, CentOS etc..
 
 2 What is a difference between hard link and soft link.
 Ans Hardlink - ln , same properties as linked files, inode number is same , even if original file is deleted we can access link
@@ -29,13 +29,13 @@ Ans Starting from the root
  1: bin- contains all executables for many shell commands like cp,cd and many more
  2: dev- Contains special files, including those related to devices like this are virtual devices and not physical devices on disk.
  3: etc- contains configuration files of system. mostly used by admin for password files and networking files. if you want to change system config come here.
- 4: usr- container all executalbe file, libraries, source of most of the system programs.
+ 4: usr- contain all the executable files, libraries, source of most of the system programs.
      again usr is divided into sub commands like: 
        /usr/bin: contains basic user commands
        /usr/sbin: containes additional commands for admin
        /usr/share: contains documents to all libraries
- 5: home- contais personal directories of specific users.
-   example if you create to user ram and shyam: there location will be: /home/ram &   /home/shyam
+ 5: home- contains  personal directories of specific users.
+   example if you create to user ram and shyam: there location will be: /home/ram &  /home/shyam
  6: lib- contains codes and executable binaries.
  7: sbin- contains system binaries
  8: tmp- directory holds temoporary files. temprary means when system restarts all files are gone/deleted.
