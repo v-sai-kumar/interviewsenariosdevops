@@ -1,0 +1,123 @@
+Here are AWS CLI-based scenario questions tailored for Operations (Ops) teams, useful for interviews, real-world troubleshooting, and on-call simulations.
+
+🔧 Setup & Identity Scenarios
+A developer says they’re getting AccessDenied errors. How would you verify who they are and what permissions they have?
+
+Use: aws sts get-caller-identity, aws iam simulate-principal-policy
+
+Your environment variables are misconfigured. How would you check and fix AWS CLI credentials?
+
+Use: aws configure, aws configure list
+
+☁️ S3 Scenarios
+A backup job failed. How do you check if the S3 bucket exists and has the expected files?
+
+Use: aws s3 ls s3://bucket-name, aws s3 cp
+
+You need to delete all objects inside an S3 bucket before deleting the bucket. How do you do it via CLI?
+
+Use: aws s3 rm s3://bucket-name --recursive, then aws s3 rb s3://bucket-name
+
+How would you sync daily reports from a server to an S3 bucket?
+
+Use: aws s3 sync /reports s3://mybucket/reports/
+
+🖥️ EC2 Scenarios
+An EC2 instance is unresponsive. How do you restart it via CLI?
+
+Use: aws ec2 reboot-instances --instance-ids i-xxxxx
+
+You need to find which EC2 instances are tagged as Environment=Production.
+
+Use: aws ec2 describe-instances with jq or use aws resourcegroupstaggingapi get-resources
+
+You accidentally terminated an instance. How do you check when and who did it?
+
+Use: AWS CloudTrail or aws ec2 describe-instances for last known metadata
+
+📊 CloudWatch Scenarios
+How do you check the CPU usage of an EC2 instance for the last hour?
+
+Use: aws cloudwatch get-metric-statistics
+
+A Lambda function is failing silently. How do you pull logs via CLI?
+
+Use: aws logs get-log-events
+
+How do you list all available log groups and their retention periods?
+
+Use: aws logs describe-log-groups
+
+🛢️ RDS Scenarios
+An RDS instance was stopped accidentally. How do you bring it back up?
+
+Use: aws rds start-db-instance --db-instance-identifier mydb
+
+How do you create a snapshot of an RDS instance before applying a patch?
+
+Use: aws rds create-db-snapshot
+
+You want to clone an existing RDS into another environment.
+
+Use: aws rds restore-db-instance-from-db-snapshot
+
+
+⚙️ IAM Scenarios
+How would you verify if a user can launch EC2 instances?
+
+Use: aws iam simulate-principal-policy
+
+How can you identify all users with S3 full access?
+
+Use: aws iam list-users + list-attached-user-policies
+
+A new team member needs read-only access to EC2. How do you provide that?
+
+Use: aws iam attach-user-policy
+
+☸️ EKS Scenarios
+You’ve joined a new project. How do you connect your kubectl to their EKS cluster?
+
+Use: aws eks update-kubeconfig --name cluster-name
+
+A pod is crashing repeatedly. How do you investigate using CLI only?
+
+Use: kubectl get pods -A, kubectl describe pod, kubectl logs
+
+📦 ECR Scenarios
+You need to push a new Docker image to ECR. What steps do you perform via CLI?
+
+Use: aws ecr get-login-password | docker login ...
+docker tag ...
+docker push ...
+
+How do you clean up old image tags in a repository?
+
+Use: aws ecr list-images, then aws ecr batch-delete-image
+
+🌐 Route53 & CloudFront Scenarios
+How would you check if a DNS record exists for app.example.com?
+
+Use: aws route53 list-resource-record-sets
+
+After updating an S3 website, content is stale. How do you invalidate CloudFront cache?
+
+Use: aws cloudfront create-invalidation
+
+📋 Tagging & Cost Scenarios
+How do you find all resources tagged as Owner=DevOps?
+
+Use: aws resourcegroupstaggingapi get-resources
+
+Your monthly AWS bill spiked. How do you break down costs by service?
+
+Use: aws ce get-cost-and-usage
+
+
+🛠️ Bonus Automation Scenarios
+You need to automate a daily health report across EC2, RDS, and S3. Which commands would you include?
+
+How do you set up a cron job to sync local logs to S3 every night?
+
+How would you write a shell script to restart EC2 instances in a specific tag group during non-business hours?
+
