@@ -68,10 +68,10 @@ Search for "OWASP ZAP" and install the plugin.
                    sh 'mvn clean install'
                }
            }
-           stage('OWASP ZAP Security Test') {
+           stage('OWASP ZAP Security Test') { 
                steps {
                    // Run OWASP ZAP scan
-                   zaproxy apiUrl: 'http://localhost:8080', contextFile: 'context_file'
+                   zaproxy apiUrl: 'http://localhost:8080', contextFile: 'context_file' # (file scan tool)
                }
            }
        }
@@ -97,7 +97,7 @@ Example 2: OWASP Dependency-Check in Jenkins Pipeline
            stage('Dependency Check') {
                steps {
                    // Run OWASP Dependency-Check
-                   dependencyCheck additionalArguments: '', odcInstallation: 'Default', scanPaths: './target'
+                   dependencyCheck additionalArguments: '', odcInstallation: 'Default', scanPaths: './target' (checks for any security vulnerbilities )
                }
            }
        }
