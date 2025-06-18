@@ -1,0 +1,190 @@
+# 📘 AWS CLI Command Guide for Linux
+
+A comprehensive guide to using AWS CLI on Linux for real-world DevOps and cloud operations.
+
+---
+
+## 📚 Table of Contents
+
+- [🔧 Setup and Configuration](#-setup-and-configuration)
+- [☁️ S3 (Simple Storage Service)](#-s3-simple-storage-service)
+- [🖥️ EC2 (Elastic Compute Cloud)](#️-ec2-elastic-compute-cloud)
+- [🛠️ IAM (Identity and Access Management)](#-iam-identity-and-access-management)
+- [🏗️ CloudFormation](#️-cloudformation)
+- [🚀 Lambda](#-lambda)
+- [📜 CloudWatch Logs](#-cloudwatch-logs)
+- [📦 ECR (Elastic Container Registry)](#-ecr-elastic-container-registry)
+- [⚙️ ECS (Elastic Container Service)](#️-ecs-elastic-container-service)
+- [🌐 VPC / Networking](#-vpc--networking)
+- [📋 Resource Tags](#-resource-tags)
+- [🛢️ RDS (Relational Database Service)](#️-rds-relational-database-service)
+- [🗄️ DynamoDB](#️-dynamodb)
+- [🌍 CloudFront](#-cloudfront)
+- [🌐 Route 53](#-route-53)
+- [📣 SNS (Simple Notification Service)](#-sns-simple-notification-service)
+- [📩 SQS (Simple Queue Service)](#-sqs-simple-queue-service)
+- [☸️ EKS (Elastic Kubernetes Service)](#️-eks-elastic-kubernetes-service)
+- [✅ Want More?](#-want-more)
+
+---
+
+## 🔧 Setup and Configuration
+
+```bash
+aws configure                  # Set AWS Access Key, Secret Key, Region, and output format
+aws configure list            # View current configuration
+aws sts get-caller-identity   # Check current IAM identity
+
+ S3 (Simple Storage Service) 
+aws s3 ls                                     # List all S3 buckets
+aws s3 ls s3://bucket-name                    # List contents of a bucket
+aws s3 cp file.txt s3://bucket-name/          # Upload a file
+aws s3 cp s3://bucket-name/file.txt .         # Download a file
+aws s3 sync ./local-dir s3://bucket-name/     # Sync local folder with S3
+aws s3 rm s3://bucket-name/file.txt           # Delete object
+aws s3 mb s3://bucket-name                    # Create new bucket
+aws s3 rb s3://bucket-name --force            # Remove bucket with all contents
+
+EC2 (Elastic Compute Cloud) 
+aws ec2 describe-instances
+aws ec2 start-instances --instance-ids i-0123456789abcdef0
+aws ec2 stop-instances --instance-ids i-0123456789abcdef0
+aws ec2 reboot-instances --instance-ids i-0123456789abcdef0
+aws ec2 terminate-instances --instance-ids i-0123456789abcdef0
+aws ec2 describe-key-pairs
+aws ec2 create-key-pair --key-name MyKey \
+  --query 'KeyMaterial' --output text > MyKey.pem
+
+IAM
+aws iam list-users
+aws iam create-user --user-name myuser
+aws iam delete-user --user-name myuser
+aws iam attach-user-policy \
+  --user-name myuser \
+  --policy-arn arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+aws iam create-access-key --user-name myuser
+
+CloudFormation
+aws cloudformation create-stack \
+  --stack-name mystack \
+  --template-body file://template.yaml
+
+aws cloudformation update-stack \
+  --stack-name mystack \
+  --template-body file://template.yaml
+
+aws cloudformation delete-stack --stack-name mystack
+
+aws cloudformation describe-stacks --stack-name mystack
+
+LAMBDA
+aws lambda list-functions
+aws lambda invoke --function-name my-function out.json
+aws lambda create-function \
+  --function-name my-function \
+  --runtime python3.8 \
+  --role arn:aws:iam::123456789012:role/service-role/role-name \
+  --handler lambda_function.lambda_handler \
+  --zip-file fileb://function.zip
+
+cloudwatch logs
+aws logs describe-log-groups
+aws logs describe-log-streams --log-group-name /aws/lambda/my-function
+aws logs get-log-events \
+  --log-group-name /aws/lambda/my-function \
+  --log-stream-name stream-name
+
+ECR
+aws ecr get-login-password | docker login \
+  --username AWS \
+  --password-stdin <aws_account_id>.dkr.ecr.<region>.amazonaws.com
+
+aws ecr create-repository --repository-name my-repo
+aws ecr describe-repositories
+aws ecr delete-repository --repository-name my-repo --force
+
+ECS
+aws ecs list-clusters
+aws ecs describe-services --cluster my-cluster --services my-service
+aws ecs update-service --cluster my-cluster --service my-service --force-new-deployment
+
+VPC Networking 
+aws ec2 describe-vpcs
+aws ec2 describe-subnets
+aws ec2 describe-security-groups
+aws ec2 describe-route-tables
+
+Resource Tags
+aws resourcegroupstaggingapi get-resources \
+  --tag-filters Key=Environment,Values=Dev
+
+RDS 
+aws rds describe-db-instances
+aws rds start-db-instance --db-instance-identifier mydb
+aws rds stop-db-instance --db-instance-identifier mydb
+aws rds create-db-snapshot \
+  --db-instance-identifier mydb \
+  --db-snapshot-identifier mydb-snapshot
+aws rds restore-db-instance-from-db-snapshot \
+  --db-instance-identifier mydb-new \
+  --db-snapshot-identifier mydb-snapshot
+
+Dynamo DB
+aws dynamodb list-tables
+aws dynamodb describe-table --table-name MyTable
+aws dynamodb create-table \
+  --table-name MyTable \
+  --attribute-definitions AttributeName=Id,AttributeType=S \
+  --key-schema AttributeName=Id,KeyType=HASH \
+  --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
+aws dynamodb put-item \
+  --table-name MyTable \
+  --item '{"Id": {"S": "123"}, "Name": {"S": "John"}}'
+aws dynamodb get-item \
+  --table-name MyTable \
+  --key '{"Id": {"S": "123"}}'
+
+Cloud Front
+aws cloudfront list-distributions
+aws cloudfront create-invalidation \
+  --distribution-id EXXXXXXXXXXXXX \
+  --paths "/*"
+aws cloudfront get-distribution --id EXXXXXXXXXXXXX
+
+Route 53
+aws route53 list-hosted-zones
+aws route53 list-resource-record-sets --hosted-zone-id ZXXXXXXXXXXXX
+aws route53 change-resource-record-sets \
+  --hosted-zone-id ZXXXXXXXXXXXX \
+  --change-batch file://change-batch.json
+
+SNS 
+aws sns list-topics
+aws sns create-topic --name my-topic
+aws sns subscribe \
+  --topic-arn arn:aws:sns:region:account-id:my-topic \
+  --protocol email \
+  --notification-endpoint my@example.com
+aws sns publish \
+  --topic-arn arn:aws:sns:region:account-id:my-topic \
+  --message "Hello from AWS CLI!"
+
+SQS
+aws sqs list-queues
+aws sqs create-queue --queue-name my-queue
+aws sqs send-message \
+  --queue-url https://sqs.region.amazonaws.com/123456789012/my-queue \
+  --message-body "Hello SQS!"
+aws sqs receive-message \
+  --queue-url https://sqs.region.amazonaws.com/123456789012/my-queue
+aws sqs delete-message \
+  --queue-url <url> \
+  --receipt-handle <handle>
+
+EKS
+aws eks list-clusters
+aws eks describe-cluster --name my-cluster
+aws eks update-kubeconfig --name my-cluster
+
+
+
