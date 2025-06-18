@@ -11,6 +11,143 @@
 6) Write a script that checks for the presence of specific software on the system on the system (e.g. Docker, Git) and installs if it is missing.
 
 
+Here are six real-world shell scripts tailored for DevOps or Linux Operations tasks, each with detailed comments for clarity.
+
+
+---
+
+1) Free Memory Alert Script
+
+#!/bin/bash
+
+THRESHOLD_MB=500
+
+free_mem=$(free -m | awk '/^Mem:/ {print $4}')
+
+if [ "$free_mem" -lt "$THRESHOLD_MB" ]; then
+  echo "ALERT: Free memory is below ${THRESHOLD_MB}MB. Current: ${free_mem}MB"
+else
+  echo "Free memory is sufficient: ${free_mem}MB"
+fi
+
+> ✅ This checks available memory in MB. If it's below 500MB, it alerts.
+
+
+
+
+---
+
+2) User Creation Script
+
+#!/bin/bash
+
+USERNAME=$1
+HOME_DIR="/home/$USERNAME"
+
+if id "$USERNAME" &>/dev/null; then
+  echo "User $USERNAME already exists."
+else
+  useradd -m -d "$HOME_DIR" -s /bin/bash "$USERNAME"
+  echo "User $USERNAME created with home directory $HOME_DIR."
+  passwd "$USERNAME"
+fi
+
+> ✅ Run like: ./create_user.sh john. It creates a user with a home directory and prompts for password.
+
+
+
+
+---
+
+3) Find and Move Files > 1GB
+
+#!/bin/bash
+
+SOURCE_DIR=$1
+DEST_DIR=$2
+
+mkdir -p "$DEST_DIR"
+
+find "$SOURCE_DIR" -type f -size +1G -exec mv {} "$DEST_DIR" \;
+
+echo "Moved all files >1GB from $SOURCE_DIR to $DEST_DIR."
+
+> ✅ Example usage: ./move_large_files.sh /var/log /backup/large_files
+
+
+
+
+---
+
+4) Auto Update and Reboot If Needed
+
+#!/bin/bash
+
+sudo apt update && sudo apt upgrade -y
+
+if [ -f /var/run/reboot-required ]; then
+  echo "Reboot required. Rebooting now..."
+  sudo reboot
+else
+  echo "No reboot required."
+fi
+
+> ✅ For Debian/Ubuntu systems. Checks /var/run/reboot-required file to know if a reboot is needed.
+
+
+
+
+---
+
+5) Count Lines in .log Files
+
+#!/bin/bash
+
+LOG_DIR=$1
+TOTAL_LINES=0
+
+for file in "$LOG_DIR"/*.log; do
+  if [ -f "$file" ]; then
+    lines=$(wc -l < "$file")
+    echo "$file: $lines lines"
+    TOTAL_LINES=$((TOTAL_LINES + lines))
+  fi
+done
+
+echo "Total lines across all .log files: $TOTAL_LINES"
+
+> ✅ Example: ./count_log_lines.sh /var/log
+
+
+
+
+---
+
+6) Software Check and Install (Docker & Git)
+
+#!/bin/bash
+
+install_if_missing() {
+  if ! command -v "$1" &>/dev/null; then
+    echo "$1 not found. Installing..."
+    sudo apt update
+    sudo apt install -y "$2"
+  else
+    echo "$1 is already installed."
+  fi
+}
+
+install_if_missing docker.io docker.io
+install_if_missing git git
+
+> ✅ Automatically installs Docker and Git if not found. Adjust for other OS package managers like yum or dnf as needed.
+
+
+
+
+---
+
+
 
 
 
