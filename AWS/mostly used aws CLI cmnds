@@ -1,0 +1,113 @@
+Here’s a curated list of most commonly used AWS CLI commands by Operations (Ops) teams, especially those involved in infrastructure management, monitoring, troubleshooting, and cost control.
+
+
+✅ Most Used AWS CLI Commands for Operations Teams
+🔧 1. AWS Configuration & Identity Checks
+aws configure                           # Setup credentials and region
+aws sts get-caller-identity             # Show current IAM identity
+aws iam get-user                        # Validate user identity and permissions
+
+
+☁️ 2. S3 – Storage Operations
+aws s3 ls                               # List all buckets
+aws s3 ls s3://bucket-name              # List objects in bucket
+aws s3 cp file.txt s3://bucket-name/    # Upload file to bucket
+aws s3 sync . s3://bucket-name/         # Sync local to bucket
+aws s3 rm s3://bucket-name/file.txt     # Remove object
+
+
+🖥️ 3. EC2 – Instance & Volume Management
+aws ec2 describe-instances                        # List all EC2 instances
+aws ec2 start-instances --instance-ids i-xxxx     # Start instance
+aws ec2 stop-instances --instance-ids i-xxxx      # Stop instance
+aws ec2 reboot-instances --instance-ids i-xxxx    # Reboot instance
+aws ec2 describe-volumes                          # List all volumes
+aws ec2 describe-snapshots --owner-ids self       # List own snapshots
+
+
+📊 4. CloudWatch – Monitoring & Metrics
+aws cloudwatch list-metrics                        # List available metrics
+aws cloudwatch get-metric-statistics \            
+  --metric-name CPUUtilization \
+  --namespace AWS/EC2 \
+  --dimensions Name=InstanceId,Value=i-xxxx \
+  --statistics Average --period 300 --start-time <start> --end-time <end>
+
+aws logs describe-log-groups                       # List log groups
+aws logs get-log-events \
+  --log-group-name /aws/lambda/my-function \
+  --log-stream-name <stream>
+
+
+🛢️ 5. RDS – Database Operations
+aws rds describe-db-instances                      # List RDS instances
+aws rds start-db-instance --db-instance-identifier mydb
+aws rds stop-db-instance --db-instance-identifier mydb
+aws rds create-db-snapshot \
+  --db-instance-identifier mydb \
+  --db-snapshot-identifier mydb-snap
+
+📋 6. IAM – Access Management
+aws iam list-users                                 # List all users
+aws iam list-roles                                 # List all roles
+aws iam list-attached-user-policies --user-name user
+aws iam simulate-principal-policy \
+  --policy-source-arn arn:aws:iam::123456789:user/user \
+  --action-names ec2:StartInstances
+
+
+📦 7. ECR – Container Registry
+aws ecr get-login-password | docker login \
+  --username AWS \
+  --password-stdin <account>.dkr.ecr.<region>.amazonaws.com
+
+aws ecr list-images --repository-name my-repo
+aws ecr delete-image \
+  --repository-name my-repo \
+  --image-tag latest
+
+
+⚙️ 8. EKS – Kubernetes Operations
+aws eks update-kubeconfig --name my-cluster
+kubectl get nodes
+kubectl get pods -A
+kubectl logs pod-name -n namespace
+
+
+🌐 9. Route 53 – DNS Troubleshooting
+aws route53 list-hosted-zones
+aws route53 list-resource-record-sets --hosted-zone-id Z123456789
+
+
+💬 10. SNS / SQS – Alerting & Queuing
+
+aws sns list-topics
+aws sns publish \
+  --topic-arn arn:aws:sns:region:account-id:topic \
+  --message "Alert from system"
+
+aws sqs list-queues
+aws sqs receive-message --queue-url https://sqs.region.amazonaws.com/123456789/queue
+
+
+💰 11. Cost & Usage Reporting
+
+aws ce get-cost-and-usage \
+  --time-period Start=2025-06-01,End=2025-06-17 \
+  --granularity DAILY \
+  --metrics "UnblendedCost"
+
+aws ce get-reservation-coverage \
+  --time-period Start=2025-06-01,End=2025-06-17
+
+
+🏷️ 12. Tag-based Filtering
+
+aws resourcegroupstaggingapi get-resources \
+  --tag-filters Key=Environment,Values=Prod
+🧰 Bonus: Automation Tip for Ops
+Combine these commands into a daily health check script.
+
+Schedule via cron or Lambda with CloudWatch Event.
+
+Integrate alerts with Slack or email via SNS.
