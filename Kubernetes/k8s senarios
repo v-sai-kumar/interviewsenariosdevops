@@ -7,7 +7,7 @@ For communication between pods in Kubernetes, especially in different deployment
 
 
 1. Pod-to-Pod Communication via Services:
-If a pod needs to communicate with another pod (e.g., a backend service calling a frontend or a database), you typically create a Kubernetes Service to provide a stable endpoint for the pods.
+If a pod needs to communicate with another pod (e.g., a backend service calling a frontend or a database), you typically create a Kubernetes Service to provide a stable endpoint for the pods
 The Kubernetes Service abstracts the set of pods (identified by labels) behind a single DNS name and IP address. For example, a frontend service may need to access a backend service. 
 The frontend pods can now communicate with the backend by accessing the service via the DNS name: backend-service.default.svc.cluster.local.
 
