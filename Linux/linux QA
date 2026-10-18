@@ -100,7 +100,7 @@ Ans) for ubuntu based os
    update package -- sudo apt update
    upgrade all packages -- sudo apt upgrade -y
    remove old packages -- sudo apt autoremove -y
-   check updated logs -- car /var/log/apt/history.log
+   check updated logs -- cat /var/log/apt/history.log
    reboot if required -- sudo reboot
 
 12) How would you regain access of Linux server if key is lost.
